@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+    <head></head>
+    <body>     
+        <div id="container"></div>
+        <script>
+            function markDone(id){
+                console.log("called")
+                const parent = document.getElementById(id)
+                parent.children[2].innerHTML = "Done!"
+                parent.children[2].removeAttribute("onclick")
+            }
+            
+            function createChild(title, description, id, completed){
+                let child = document.createElement("div")
+                let firstGrandChild = document.createElement("div")
+                firstGrandChild.innerHTML = `<b>${title}</b>`
+                let secondGrandChild = document.createElement("div")
+                secondGrandChild.innerHTML = description
+                let thirdGrandChild = document.createElement("button")
+                if(completed) thirdGrandChild.innerHTML = "Done!"
+                else {
+                    thirdGrandChild.innerHTML = "Mark as completed"
+                    thirdGrandChild.setAttribute("onclick", `markDone(${id})`)
+                }
+                child.appendChild(firstGrandChild)
+                child.appendChild(secondGrandChild)
+                child.appendChild(thirdGrandChild)
+                child.setAttribute("id",id)
+                return child
+            }
+
+            function updateDOM(state){
+                const parent = document.getElementById("container")
+                parent.innerHTML = ""
+                for(let i=0; i<state.length; ++i) {
+                    const title = state[i].title
+                    const description = state[i].description
+                    const id = state[i].id
+                    const completed = state[i].completed
+                    parent.innerHTML += "<br><br>"
+                    parent.appendChild(createChild(title, description, id, completed))
+                }
+            }
+
+            window.setInterval(async function () {
+                let response = await fetch("http://localhost:3000")
+                let json = await response.json()
+                updateDOM(json.todos)
+            },5000)
+        </script>
+    </body>
+</html>
